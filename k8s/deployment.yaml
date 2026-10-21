@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tareas
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tareas
+  template:
+    metadata:
+      labels:
+        app: tareas
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/nisanjivo/tareas-api:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: tareas-config
+            - secretRef:
+                name: tareas-secret
+          readinessProbe:
+            httpGet:
+              path: /salud
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /salud
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
